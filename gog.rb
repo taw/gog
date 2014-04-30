@@ -2,24 +2,16 @@ require "mechanize"
 require "pathname"
 
 class GOG
-  def self.credentials
-    @credentials ||= begin
-      path = Pathname(ENV["HOME"]) + ".gogauth"
-      raise "File #{ptah} doesn't exist" unless path.exist?
-      path.readlines.map(&:chomp).grep(/\S+/)[0,2]
-    end
-  end
+  attr_reader :agent
 
   def initialize
     @agent = Mechanize.new
     @agent.log = Logger.new("mechanize.log")
-    @credentials = GOG.credentials
+    @agent.cookie_jar.load_cookiestxt("cookies.txt")
   end
 
-  def login!
-    page = @agent.get "http://www.gog.com/"
-    form = page.form("login_form")
-    form.log_email = GOG.credentials[0]
-    form.log_password = GOG.credentials[1]
+  def list_games
+    page = agent.get("https://secure.gog.com/account")
+    # and it fails anyway, because it's just a pile of AJAX crap...
   end
 end
